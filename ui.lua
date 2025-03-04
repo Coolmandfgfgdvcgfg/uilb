@@ -32,7 +32,7 @@ local Bar = Instance.new("Frame")
 local txt = Instance.new("TextLabel")
 local UIListLayout = Instance.new("UIListLayout")
 
-UiLib.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+UiLib.Parent = game.CoreGui
 UiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 UiLib.ResetOnSpawn = false
 UiLib.IgnoreGuiInset = true
