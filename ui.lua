@@ -4,8 +4,8 @@ local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
-local Binds = {
-	Toggle = Enum.KeyCode.Quote
+Library.Binds = {
+	Toggle = Enum.KeyCode.BackSlash
 }
 
 local Bools = {
@@ -254,7 +254,7 @@ local function ToggleCMDBar()
 end
 
 UIS.InputBegan:Connect(function(input, gp)
-	if input.KeyCode == Binds.Toggle and not gp then
+	if input.KeyCode == Library.Binds.Toggle and not gp then
 		ToggleCMDBar()
 	end
 end)
