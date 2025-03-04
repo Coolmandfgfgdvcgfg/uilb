@@ -307,11 +307,13 @@ local function UpdateAutoComplete()
 
     if #args == 1 and args[1] ~= "" then
         local commandMatch = GetClosestMatch(args[1]:lower(), Library.Commands)
+        CmdBox.Text = commandMatch -- Force lowercase for command name
         AutoComplete.Text = commandMatch
     elseif #args >= 2 then
         local command = Library.Commands[args[1]:lower()]
         if command and command.ArgTypes then
-            local autoCompleteText = {args[1]} -- Preserve original case for command
+            args[1] = args[1]:lower() -- Force lowercase for command name
+            local autoCompleteText = {args[1]}
 
             for i = 2, #args do
                 local arg = args[i] or ""
@@ -324,17 +326,17 @@ local function UpdateAutoComplete()
                     match = GetClosestMatchiPairs(arg:lower(), GetPlayerNames())
                 elseif command.ArgTypes[i-1] ~= "string" then
                     match = GetClosestMatchiPairs(arg:lower(), {command.ArgTypes[i-1]})
+                    match = match:lower() -- Ensure non-string args are lowercase
                 end
 
                 table.insert(autoCompleteText, match)
             end
 
             AutoComplete.Text = table.concat(autoCompleteText, " ")
+            CmdBox.Text = table.concat(autoCompleteText, " ") -- Force updated text in box
         end
     end
 end
-
-
 
 CmdBox:GetPropertyChangedSignal("Text"):Connect(UpdateAutoComplete)
 
