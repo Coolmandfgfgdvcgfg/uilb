@@ -287,55 +287,56 @@ local function GetPlayerNames()
 end
 
 local function UpdateAutoComplete()
-    CmdBox.Text = CmdBox.Text:gsub("%s+", " "):gsub("\t", "")
-    AutoComplete.Text = ""
+	CmdBox.Text = CmdBox.Text:gsub("%s+", " "):gsub("\t", "")
+	CmdBox.Text = CmdBox.Text:lower()
+	AutoComplete.Text = AutoComplete.Text:lower()
 
-    if not CmdBox.TextFits then
-        CmdBox.TextXAlignment = Enum.TextXAlignment.Right
-    else
-        CmdBox.TextXAlignment = Enum.TextXAlignment.Left
-    end
+	if not CmdBox.TextFits then
+		CmdBox.TextXAlignment = Enum.TextXAlignment.Right
+	else
+		CmdBox.TextXAlignment = Enum.TextXAlignment.Left
+	end
 
-    if not AutoComplete.TextFits then
-        AutoComplete.TextXAlignment = Enum.TextXAlignment.Right
-    else
-        AutoComplete.TextXAlignment = Enum.TextXAlignment.Left
-    end
+	if not AutoComplete.TextFits then
+		AutoComplete.TextXAlignment = Enum.TextXAlignment.Right
+	else
+		AutoComplete.TextXAlignment = Enum.TextXAlignment.Left
+	end
 
-    local text = CmdBox.Text
-    local args = text:split(" ")
+	local text = CmdBox.Text
+	local args = text:split(" ")
 
-    if #args == 1 and args[1] ~= "" then
-        local commandMatch = GetClosestMatch(args[1]:lower(), Library.Commands)
-        CmdBox.Text = commandMatch -- Force lowercase for command name
-        AutoComplete.Text = commandMatch
-    elseif #args >= 2 then
-        local command = Library.Commands[args[1]:lower()]
-        if command and command.ArgTypes then
-            args[1] = args[1]:lower() -- Force lowercase for command name
-            local autoCompleteText = {args[1]}
+	if #args == 1 and args[1] ~= "" then
+		local commandMatch = GetClosestMatch(args[1], Library.Commands)
+		AutoComplete.Text = commandMatch
+	elseif #args >= 2 then
+		local command = Library.Commands[args[1]]
+		if command and command.ArgTypes then
+			local autoCompleteText = {args[1]} -- Use a table to store words properly
 
-            for i = 2, #args do
-                local arg = args[i] or ""
-                if arg == "" then
-                    break
-                end
+			for i = 2, #args do
+				local arg = args[i] or ""
+				if arg == "" then
+					break
+				end
 
-                local match = arg
-                if command.ArgTypes[i-1] == "player" then
-                    match = GetClosestMatchiPairs(arg:lower(), GetPlayerNames())
-                elseif command.ArgTypes[i-1] ~= "string" then
-                    match = GetClosestMatchiPairs(arg:lower(), {command.ArgTypes[i-1]})
-                    match = match:lower() -- Ensure non-string args are lowercase
-                end
+				local match = arg
+				if command.ArgTypes[i-1] == "player" then
+					match = GetClosestMatchiPairs(arg, GetPlayerNames())
+				else
+					match = GetClosestMatchiPairs(arg, {command.ArgTypes[i-1]})
+				end
 
-                table.insert(autoCompleteText, match)
-            end
+				table.insert(autoCompleteText, match ~= "" and match or arg)
+			end
 
-            AutoComplete.Text = table.concat(autoCompleteText, " ")
-            CmdBox.Text = table.concat(autoCompleteText, " ") -- Force updated text in box
-        end
-    end
+			AutoComplete.Text = table.concat(autoCompleteText, " ") -- Join words correctly
+		else
+			AutoComplete.Text = text
+		end
+	else
+		AutoComplete.Text = ""
+	end
 end
 
 CmdBox:GetPropertyChangedSignal("Text"):Connect(UpdateAutoComplete)
