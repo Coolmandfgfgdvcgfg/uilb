@@ -15,6 +15,7 @@ local Bools = {
 Library.Commands = {}
 
 local UiLib = Instance.new("ScreenGui")
+UiLib.DisplayOrder = 999999
 local CMD_Bar = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
 local InputArrow = Instance.new("ImageLabel")
