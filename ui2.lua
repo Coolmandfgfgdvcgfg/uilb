@@ -1,5 +1,8 @@
 local Library = {}
-
+if getgenv().Lib then
+	getgenv().Lib:Destroy()
+end
+getgenv().Lib = Library
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -34,6 +37,7 @@ local Bar = Instance.new("Frame")
 local txt = Instance.new("TextLabel")
 local UIListLayout = Instance.new("UIListLayout")
 
+UiLib.Name = "skibidiutils"
 UiLib.Parent = game.CoreGui
 UiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 UiLib.ResetOnSpawn = false
