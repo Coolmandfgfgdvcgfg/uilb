@@ -294,16 +294,12 @@ local function UpdateAutoComplete()
 
 	if not CmdBox.TextFits then
 		CmdBox.TextXAlignment = Enum.TextXAlignment.Right
-	else
-		CmdBox.TextXAlignment = Enum.TextXAlignment.Left
-	end
-
-	if not AutoComplete.TextFits then
 		AutoComplete.TextXAlignment = Enum.TextXAlignment.Right
 	else
+		CmdBox.TextXAlignment = Enum.TextXAlignment.Left
 		AutoComplete.TextXAlignment = Enum.TextXAlignment.Left
 	end
-
+	
 	local text = CmdBox.Text
 	local args = text:split(" ")
 
