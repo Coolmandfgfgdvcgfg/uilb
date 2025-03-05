@@ -365,9 +365,9 @@ connect2 = UIS.InputBegan:Connect(function(input, gp)
 	end
 end)
 
-table.insert(textc, Library.Connections)
-table.insert(connect1, Library.Connections)
-table.insert(connect2, Library.Connections)
+table.insert(Library.Connections, textc)
+table.insert(Library.Connections, connect1)
+table.insert(Library.Connections, connect2)
 
 function Library:RegisterCommand(name, func, argTypes)
 	Library.Commands[name] = {Func = func, ArgTypes = argTypes}
