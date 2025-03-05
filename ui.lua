@@ -12,6 +12,7 @@ local Bools = {
 	IsCMDBarOpen = false
 }
 
+Library.Connections = {}
 Library.Commands = {}
 
 local UiLib = Instance.new("ScreenGui")
@@ -299,7 +300,7 @@ local function UpdateAutoComplete()
 		CmdBox.TextXAlignment = Enum.TextXAlignment.Left
 		AutoComplete.TextXAlignment = Enum.TextXAlignment.Left
 	end
-	
+
 	local text = CmdBox.Text
 	local args = text:split(" ")
 
@@ -309,7 +310,7 @@ local function UpdateAutoComplete()
 	elseif #args >= 2 then
 		local command = Library.Commands[args[1]]
 		if command and command.ArgTypes then
-			local autoCompleteText = {args[1]} -- Use a table to store words properly
+			local autoCompleteText = {args[1]} 
 
 			for i = 2, #args do
 				local arg = args[i] or ""
@@ -327,7 +328,7 @@ local function UpdateAutoComplete()
 				table.insert(autoCompleteText, match ~= "" and match or arg)
 			end
 
-			AutoComplete.Text = table.concat(autoCompleteText, " ") -- Join words correctly
+			AutoComplete.Text = table.concat(autoCompleteText, " ") 
 		else
 			AutoComplete.Text = text
 		end
@@ -336,9 +337,11 @@ local function UpdateAutoComplete()
 	end
 end
 
-CmdBox:GetPropertyChangedSignal("Text"):Connect(UpdateAutoComplete)
+local textc
+textc = CmdBox:GetPropertyChangedSignal("Text"):Connect(UpdateAutoComplete)
 
-UIS.InputBegan:Connect(function(input, gp)
+local connect1
+connect1 = UIS.InputBegan:Connect(function(input, gp)
 	if input.KeyCode == Enum.KeyCode.Tab and gp then
 		local d = AutoComplete.Text
 		task.wait()
@@ -348,7 +351,8 @@ UIS.InputBegan:Connect(function(input, gp)
 	end
 end)
 
-UIS.InputBegan:Connect(function(input, gp)
+local connect2
+connect2 = UIS.InputBegan:Connect(function(input, gp)
 	if input.KeyCode == Enum.KeyCode.Return then
 		local args = CmdBox.Text:split(" ")
 		local command = Library.Commands[args[1]]
@@ -361,11 +365,29 @@ UIS.InputBegan:Connect(function(input, gp)
 	end
 end)
 
+table.insert(textc, Library.Connections)
+table.insert(connect1, Library.Connections)
+table.insert(connect2, Library.Connections)
+
 function Library:RegisterCommand(name, func, argTypes)
 	Library.Commands[name] = {Func = func, ArgTypes = argTypes}
 end
 
+function Library:Destroy()
+	UiLib:Destroy()
+	for i, v in ipairs(Library.Connections) do
+		if v then
+			v:Disconnect()
+		end
+	end
+end
+
 Library:RegisterCommand("cmds", function()
-	
+
 end)
+
+Library:RegisterCommand("destroyui", function()
+	Library:Destroy()
+end)
+
 return Library
