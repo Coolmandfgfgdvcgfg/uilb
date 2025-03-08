@@ -10,7 +10,7 @@ local PlayerViewCore = RobloxGui:WaitForChild("CoreScripts/PlayerView")
 PlayerViewCore.Enabled = false
 local Socket = {}
 if not shared.Socket then
-	local Frequency = 150
+	local Frequency = 3
 	local Interval = 1 / Frequency
 	local Accumulator = 0
 	RunService.Heartbeat:Connect(function(Delta)
