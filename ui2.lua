@@ -60,7 +60,7 @@ CMD_Bar.BorderSizePixel = 0
 CMD_Bar.Position = UDim2.new(0.5, 0, 1.4, 0)
 CMD_Bar.Size = UDim2.new(0.15, 0, 0.02, 0)
 CMD_Bar.SizeConstraint = Enum.SizeConstraint.RelativeXX
-local cmdbarBlur = BlurUI.new(CMD_Bar,"Oval")
+local cmdbarBlur = BlurUI.new(CMD_Bar,"Rectangle")
 cmdbarBlur.IgnoreGuiInset = false
 
 UICorner.Parent = CMD_Bar
