@@ -1,8 +1,13 @@
 local Library = {}
-if getgenv().Lib then
-	getgenv().Lib:Destroy()
+
+if getgenv then
+	if getgenv().Lib then
+		getgenv().Lib:Destroy()
+	end
+	getgenv().Lib = Library
 end
-getgenv().Lib = Library
+
+local BlurUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Coolmandfgfgdvcgfg/uilb/refs/heads/main/UIBlurLib"))()
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -36,23 +41,27 @@ local LoadBar = Instance.new("Frame")
 local Bar = Instance.new("Frame")
 local txt = Instance.new("TextLabel")
 local UIListLayout = Instance.new("UIListLayout")
+local RunService = game:GetService("RunService")
+local newSecureCoreGui = cloneref(game.CoreGui)
 
 UiLib.Name = "skibidiutils"
-UiLib.Parent = game.CoreGui
+UiLib.Parent = newSecureCoreGui
 UiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 UiLib.ResetOnSpawn = false
 UiLib.IgnoreGuiInset = true
 
 CMD_Bar.Name = "CMD_Bar"
 CMD_Bar.Parent = UiLib
-CMD_Bar.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
-CMD_Bar.BackgroundTransparency = 0.300
+CMD_Bar.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
+CMD_Bar.BackgroundTransparency = 0.500
 CMD_Bar.AnchorPoint = Vector2.new(0.5,0.5)
 CMD_Bar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 CMD_Bar.BorderSizePixel = 0
 CMD_Bar.Position = UDim2.new(0.5, 0, 1.4, 0)
 CMD_Bar.Size = UDim2.new(0.15, 0, 0.02, 0)
 CMD_Bar.SizeConstraint = Enum.SizeConstraint.RelativeXX
+local cmdbarBlur = BlurUI.new(CMD_Bar,"Oval")
+cmdbarBlur.IgnoreGuiInset = false
 
 UICorner.Parent = CMD_Bar
 
@@ -130,8 +139,8 @@ NotifHolder.Size = UDim2.new(1, 0, 0.121586226, 0)
 
 AFrame.Name = "AFrame"
 AFrame.Parent = NotifHolder
-AFrame.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
-AFrame.BackgroundTransparency = 0.300
+AFrame.BackgroundColor3 = Color3.fromRGB(13, 13, 13)
+AFrame.BackgroundTransparency = 0.500
 AFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 AFrame.BorderSizePixel = 0
 AFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -177,7 +186,7 @@ Line.Size = UDim2.new(1, 0, -0.00854700897, 0)
 LoadBar.Name = "LoadBar"
 LoadBar.Parent = AFrame
 LoadBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-LoadBar.BackgroundTransparency = 0.930
+LoadBar.BackgroundTransparency = 0.5
 LoadBar.BorderColor3 = Color3.fromRGB(0, 0, 0)
 LoadBar.BorderSizePixel = 0
 LoadBar.Position = UDim2.new(0, 0, 0.931623936, 0)
@@ -187,6 +196,7 @@ Bar.Name = "Bar"
 Bar.Parent = LoadBar
 Bar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Bar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Bar.BackgroundTransparency = 0.5
 Bar.Position = UDim2.new(0,0,1,0)
 Bar.BorderSizePixel = 0
 Bar.Size = UDim2.new(0, 0, -1, 0)
@@ -213,6 +223,41 @@ UIListLayout.Padding = UDim.new(0,5)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 
+local function ringBell(bell, duration)
+	if not bell then return end -- Prevent errors if no object is passed
+
+	local totalTime = duration or 2 -- How long the bell should ring
+	local startTime = tick() -- Get the start time
+	local amplitude = 25 -- Initial swing angle
+	local decayFactor = 0.75 -- How fast the motion dies down
+	local swingTime = 0.1 -- Speed of each swing
+
+	local function createSwing(angle)
+		return TS:Create(bell, TweenInfo.new(swingTime, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {Rotation = angle})
+	end
+
+	-- Swing loop
+	task.spawn(function()
+		while tick() - startTime < totalTime and amplitude > 1 do
+			local leftSwing = createSwing(-amplitude)
+			local rightSwing = createSwing(amplitude)
+
+			leftSwing:Play()
+			leftSwing.Completed:Wait()
+
+			rightSwing:Play()
+			rightSwing.Completed:Wait()
+
+			-- Reduce amplitude gradually
+			amplitude = amplitude * decayFactor
+		end
+
+		-- Reset back to original position smoothly
+		TS:Create(bell, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 0}):Play()
+	end)
+end
+
+
 function Library:DisplayNotification(text, del)
 	local notification = NotifHolder:Clone()
 
@@ -220,6 +265,8 @@ function Library:DisplayNotification(text, del)
 	notification.Visible = true
 	notification.AFrame.txt.Text = text
 	notification.AFrame.Position = UDim2.new(1, 0, 0, 0) 
+	local notifBlur = BlurUI.new(notification.AFrame,"Rectangle")
+	notifBlur.IgnoreGuiInset = false
 
 	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local tween = TS:Create(notification.AFrame, tweenInfo, { Position = UDim2.new(0, 0, 0, 0) })
@@ -229,11 +276,17 @@ function Library:DisplayNotification(text, del)
 	local tween2 = TS:Create(notification.AFrame.LoadBar.Bar, tweenInfo2, { Size = UDim2.new(1, 0,-1, 0) })
 
 	tween2:Play()
+	ringBell(notification.AFrame.notifImage,del/1.5)
 	task.delay(del,function()
-		local tween = TS:Create(notification.AFrame, tweenInfo, { Position = UDim2.new(1, 0, 0, 0) })
-
+		
+		local tween = TS:Create(notification.AFrame, tweenInfo, { Position = UDim2.new(1.1, 0, 0, 0) })
+		
 		tween:Play()
-		game:GetService("Debris"):AddItem(notification, 0.5)
+		task.delay(0.5,function()
+			notifBlur:Destroy()
+		end)
+		game:GetService("Debris"):AddItem(notification, 0.51)
+	
 	end)
 end
 
@@ -378,6 +431,7 @@ function Library:RegisterCommand(name, func, argTypes)
 end
 
 function Library:Destroy()
+	cmdbarBlur:Destroy()
 	UiLib:Destroy()
 	for i, v in ipairs(Library.Connections) do
 		if v then
@@ -387,11 +441,15 @@ function Library:Destroy()
 end
 
 Library:RegisterCommand("cmds", function()
-
+	
 end)
 
 Library:RegisterCommand("destroyui", function()
 	Library:Destroy()
+end)
+
+Library.Connections["BlurLoop"] = RunService.RenderStepped:Connect(function()
+	BlurUI.updateAll()
 end)
 
 return Library
